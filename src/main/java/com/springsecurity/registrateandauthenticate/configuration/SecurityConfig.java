@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .cors().and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/users/join", "/api/v1/users/login").permitAll() // join, login은 언제나 가능
+                .antMatchers("/api/v1/join", "/api/v1/login").permitAll() // join, login은 언제나 가능
                 // 순서대로 적용이 되기 때문에 join과 login 이후에
                 // authenticated되어야 글을 작성할 수 있도록 함 -> 문을 만들어줌
                 .antMatchers(HttpMethod.POST, "/api/v1/**").authenticated()

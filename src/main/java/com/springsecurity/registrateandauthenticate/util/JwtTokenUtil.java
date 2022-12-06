@@ -30,6 +30,13 @@ public class JwtTokenUtil {
 
         return claims.get("userName").toString();
     }
+
+    public static boolean isExpired(String token, String secretKey) {
+        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+
+        Date expiredDate = claims.getExpiration();
+        return expiredDate.before(new Date());
+    }
 }
 
 
