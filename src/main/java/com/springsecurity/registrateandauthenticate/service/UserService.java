@@ -25,7 +25,7 @@ public class UserService {
 
     public String login(String userName, String userPassword){
 
-        User selectedUser = userRepository.findByUserName(userName).orElseThrow(() -> new RuntimeException("아이디를 찾을 수 없습니다."));
+        User selectedUser = getUserByUserName(userName);
         log.info(selectedUser.getUserName(), selectedUser.getPassword());
 
         if(!bCryptPasswordEncoder.matches(userPassword, selectedUser.getPassword())){
@@ -38,7 +38,12 @@ public class UserService {
         return token;
     }
 
+    public User getUserByUserName(String userName){
 
+        User selectedUser = userRepository.findByUserName(userName).orElseThrow(() -> new RuntimeException("아이디를 찾을 수 없습니다."));
+
+        return selectedUser;
+    }
 
 
 }

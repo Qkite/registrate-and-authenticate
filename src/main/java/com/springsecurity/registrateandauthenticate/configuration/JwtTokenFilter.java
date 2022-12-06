@@ -1,5 +1,6 @@
 package com.springsecurity.registrateandauthenticate.configuration;
 
+import com.springsecurity.registrateandauthenticate.domain.User;
 import com.springsecurity.registrateandauthenticate.service.UserService;
 import com.springsecurity.registrateandauthenticate.util.JwtTokenUtil;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +37,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         final String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+//        log.info(authorizationHeader);
+
         if(authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")){
             filterChain.doFilter(request, response);
             log.info("적절하지 않은 token입니다.");
@@ -48,7 +52,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             token = authorizationHeader.split(" ")[1];
 
         }catch (Exception e){
-            log.error("token 추출애 실패했습니다.");
+            log.error("token 추출에 실패했습니다.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -59,8 +63,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return ;
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken("", null, List.of(new SimpleGrantedAuthority("USER")));
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        String userName = JwtTokenUtil.getUserName(token, secretKey);
+
+        User user = userService.getUserByUserName(userName);
+
+
+
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user.getUserName(), null, List.of(new SimpleGrantedAuthority("USER")));
+        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); // 권한 부여
         filterChain.doFilter(request, response);
 
     }
