@@ -1,6 +1,7 @@
 package com.springsecurity.registrateandauthenticate.controller;
 
 import com.springsecurity.registrateandauthenticate.domain.dto.ReviewRequest;
+import com.springsecurity.registrateandauthenticate.service.ReviewService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,11 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ReviewController {
 
+    private final ReviewService reviewService;
+
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
+
     @PostMapping("")
     public String writeReview(@RequestBody ReviewRequest request, Authentication authentication){
 
 
-        return "리뷰 등록에 성공했습니다.";
+        String message = reviewService.writeMessage(authentication.getName());
+
+
+        return message;
 
     }
 }
